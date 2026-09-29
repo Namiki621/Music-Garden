@@ -383,10 +383,10 @@ var DURATIONS=[{label:'5分',level:0},{label:'10分',level:1},{label:'15分',lev
 var MILESTONES={3:2,5:3,7:2};
 var DAILY_CAP=2;
 
-var state={screen:'login',name:'',plant:null,count:0,gardenPlots:[],streak:0,awarded:[],potions:[],discovered:[],totalPractice:0,lastDuration:null,lastAnimal:null,lastMilestone:null,dailyCount:0,dailyDate:'',carryGain:0,lastOverCap:false};
+var state={screen:'login',name:'',plant:null,count:0,gardenPlots:[],streak:0,streakDate:'',awarded:[],potions:[],discovered:[],totalPractice:0,lastDuration:null,lastAnimal:null,lastMilestone:null,dailyCount:0,dailyDate:'',carryGain:0,lastOverCap:false};
 
-function save(){try{if(!state.name)return;localStorage.setItem('musicgarden2:'+state.name,JSON.stringify({plant:state.plant,count:state.count,gardenPlots:state.gardenPlots,streak:state.streak,awarded:state.awarded,potions:state.potions,discovered:state.discovered,totalPractice:state.totalPractice,dailyCount:state.dailyCount,dailyDate:state.dailyDate,carryGain:state.carryGain}));}catch(e){}}
-function load(name){try{var raw=localStorage.getItem('musicgarden2:'+name);if(raw){var d=JSON.parse(raw);state.plant=d.plant;state.count=d.count||0;state.gardenPlots=d.gardenPlots||[];state.streak=d.streak||0;state.awarded=d.awarded||[];state.potions=d.potions||[];state.discovered=d.discovered||[];state.totalPractice=d.totalPractice||0;state.dailyCount=d.dailyCount||0;state.dailyDate=d.dailyDate||'';state.carryGain=d.carryGain||0;}}catch(e){}}
+function save(){try{if(!state.name)return;localStorage.setItem('musicgarden2:'+state.name,JSON.stringify({plant:state.plant,count:state.count,gardenPlots:state.gardenPlots,streak:state.streak,streakDate:state.streakDate,awarded:state.awarded,potions:state.potions,discovered:state.discovered,totalPractice:state.totalPractice,dailyCount:state.dailyCount,dailyDate:state.dailyDate,carryGain:state.carryGain}));}catch(e){}}
+function load(name){try{var raw=localStorage.getItem('musicgarden2:'+name);if(raw){var d=JSON.parse(raw);state.plant=d.plant;state.count=d.count||0;state.gardenPlots=d.gardenPlots||[];state.streak=d.streak||0;state.streakDate=d.streakDate||'';state.awarded=d.awarded||[];state.potions=d.potions||[];state.discovered=d.discovered||[];state.totalPractice=d.totalPractice||0;state.dailyCount=d.dailyCount||0;state.dailyDate=d.dailyDate||'';state.carryGain=d.carryGain||0;}}catch(e){}}
 function todayStr(){var t=new Date();return t.getFullYear()+'-'+(t.getMonth()+1)+'-'+t.getDate();}
 function checkDailyReset(){var t=todayStr();if(state.dailyDate!==t){state.dailyDate=t;state.dailyCount=0;}}
 function animalGlyph(a,px,sil){if(a&&a.img)return '<img src="'+a.img+'" style="height:'+px+'px;width:auto;vertical-align:middle;display:inline-block;'+(sil?'filter:brightness(0) opacity(.5);':'')+'">';return a?a.e:'';}
@@ -557,7 +557,8 @@ if(state.lastAnimal&&state.lastAnimal.k&&state.discovered.indexOf(state.lastAnim
 var gain=1;var usedPotion=null;
 if(wantPotion&&state.potions.length){state.potions.sort(function(a,b){return b.mult-a.mult;});var picked=state.potions.shift();gain=picked.mult;usedPotion=picked.mult;}
 if(state.carryGain>0){gain+=state.carryGain;state.carryGain=0;}
-state.count+=gain;state.totalPractice+=1;state.streak+=1;
+state.count+=gain;state.totalPractice+=1;
+if(state.streakDate!==state.dailyDate){state.streak+=1;state.streakDate=state.dailyDate;}
 if(MILESTONES[state.streak]&&state.awarded.indexOf(state.streak)===-1){
 state.awarded.push(state.streak);state.lastMilestone={days:state.streak,mult:MILESTONES[state.streak]};
 state.potions.push({mult:MILESTONES[state.streak]});
@@ -662,7 +663,7 @@ resetArea.innerHTML='<div class="confirm-box"><p>'+rb('本当','ほんとう')+'
 wrap.querySelector('#cancelReset').onclick=function(){resetArea.innerHTML='<button class="btn compact flower" id="resetBtn">'+rb('記録','きろく')+'をリセットする</button>';bindResetBtn();};
 wrap.querySelector('#okReset').onclick=function(){
 try{localStorage.removeItem('musicgarden2:'+state.name);}catch(e){}
-state.plant=null;state.count=0;state.gardenPlots=[];state.streak=0;state.awarded=[];state.potions=[];state.discovered=[];state.totalPractice=0;state.dailyCount=0;state.dailyDate='';state.carryGain=0;
+state.plant=null;state.count=0;state.gardenPlots=[];state.streak=0;state.streakDate='';state.awarded=[];state.potions=[];state.discovered=[];state.totalPractice=0;state.dailyCount=0;state.dailyDate='';state.carryGain=0;
 resetArea.innerHTML='<div class="toast-msg">✅ リセットしました！</div><button class="btn flower" id="resetBtn">記録をリセットする</button>';
 bindResetBtn();
 };
