@@ -387,7 +387,7 @@ var PLANTS={tulip:{name:'チューリップ',target:7,stages:['🌱','🌱','�
 whiteTulip:{name:'白いチューリップ',target:7,stages:['🌱','🌱','🌿','🌿','🌾','🤍','🤍'],stagesImg:WHITE_TULIP_STAGES,depth:'front'},
 apple:{name:'りんごの木',target:11,stages:['🌱','🌱','🌿','🌿','🪴','🌳','🍎'],stagesImg:APPLE_STAGES,depth:'back'},
 pumpkin:{name:'かぼちゃ',target:7,stages:['🌱','🌱','🌿','🌿','🎃','🎃','🎃'],stagesImg:PUMPKIN_STAGES,depth:'front',seasonal:'halloween'},
-hauntedMansion:{name:'ホーンテッドマンション',target:7,stages:['🏗️','🏗️','🏠','🏠','🏚️','🏰','🏰'],stagesImg:HAUNTED_MANSION_STAGES,depth:'back',seasonal:'halloween'},
+hauntedMansion:{name:'ホーンテッドマンション',target:7,stages:['🏗️','🏗️','🏠','🏠','🏚️','🏰','🏰'],stagesImg:HAUNTED_MANSION_STAGES,depth:'back',seasonal:'halloween',sizeMult:1.4},
 oak:{name:'どんぐりの木',target:15,stages:['🌰','🌱','🌱','🌿','🌿','🌳','🌳'],stagesImg:OAK_STAGES,depth:'back'}};
 function isSeasonalActive(seasonKey){if(seasonKey==='halloween')return new Date().getMonth()===9;return true;}
 function isPlantAvailable(key){var p=PLANTS[key];return !p.seasonal||isSeasonalActive(p.seasonal);}
@@ -426,11 +426,11 @@ function animalGlyph(a,px,sil){var img=animalImg(a);if(img)return '<img src="'+i
 function pickAnimal(){var pool=ANIMALS.filter(function(a){return !a.seasonal||isSeasonalActive(a.seasonal);});var total=pool.reduce(function(s,a){return s+a.w;},0);var r=Math.random()*total,acc=0;for(var i=0;i<pool.length;i++){acc+=pool[i].w;if(r<=acc)return pool[i];}return pool[pool.length-1];}
 function stageIndex(key,count){var p=PLANTS[key];var arr=p.stagesImg||p.stages;var n=arr.length;return Math.min(n-1,Math.floor(count*n/p.target));}
 function stageEmoji(key,count){var p=PLANTS[key];var idx=stageIndex(key,count);if(p.stagesImg)return '<img src="'+p.stagesImg[idx]+'" style="height:2em;width:auto;vertical-align:middle;display:inline-block;">';return p.stages[idx];}
-function stageSize(key,count){return 34+stageIndex(key,count)*7;}
+function stageSize(key,count){var p=PLANTS[key];return (34+stageIndex(key,count)*7)*(p&&p.sizeMult||1);}
 function rb(k,r){return '<ruby>'+k+'<rt>'+r+'</rt></ruby>';}
 function escAttr(s){return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;');}
 function splitTypeUnits(html){var units=[];var i=0;while(i<html.length){if(html[i]==='<'){if(html.slice(i,i+6)==='<ruby>'){var end=html.indexOf('</ruby>',i);end=end===-1?html.length:end+7;units.push(html.slice(i,end));i=end;}else{var end2=html.indexOf('>',i);end2=end2===-1?html.length:end2+1;units.push(html.slice(i,end2));i=end2;}}else{units.push(html[i]);i++;}}return units;}
-function finalStageHtml(key){var p=PLANTS[key];if(p.stagesImg)return '<img src="'+p.stagesImg[p.stagesImg.length-1]+'" style="height:4.4em;width:auto;vertical-align:middle;display:inline-block;">';return '<span style="font-size:4.4em;line-height:1;">'+p.stages[6]+'</span>';}
+function finalStageHtml(key){var p=PLANTS[key];var fsz=4.4*(p.sizeMult||1);if(p.stagesImg)return '<img src="'+p.stagesImg[p.stagesImg.length-1]+'" style="height:'+fsz+'em;width:auto;vertical-align:middle;display:inline-block;">';return '<span style="font-size:'+fsz+'em;line-height:1;">'+p.stages[6]+'</span>';}
 function plantDepth(key){var p=PLANTS[key];return (p&&p.depth==='front')?'front':'back';}
 function centerOutStep(i){if(i===0)return 0;var step=Math.ceil(i/2);return (i%2===1)?step:-step;}
 function gardenPos(key,idxInCategory){
