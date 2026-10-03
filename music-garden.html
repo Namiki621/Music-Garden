@@ -183,6 +183,10 @@ rt{font-size:.55em;color:var(--ink-soft);font-weight:600;user-select:none;}
 .big-ghost-boo{position:absolute;left:50%;top:38%;width:72%;max-width:320px;pointer-events:none;z-index:7;animation:ghostBoo 2.5s cubic-bezier(.2,.8,.3,1) forwards;filter:drop-shadow(0 14px 24px rgba(20,10,40,.4));}
 .big-ghost-boo img{width:100%;height:auto;display:block;}
 @keyframes ghostBoo{0%{opacity:0;transform:translate(-50%,-50%) scale(.15);}14%{opacity:1;transform:translate(-50%,-50%) scale(1);}72%{opacity:1;transform:translate(-50%,-50%) scale(1);}100%{opacity:0;transform:translate(-50%,-58%) scale(1.3);}}
+.success-fade{animation:successFadeIn .38s ease forwards;}
+.success-fade.fade-out{animation:successFadeOut .32s ease forwards;}
+@keyframes successFadeIn{0%{opacity:0;}100%{opacity:1;}}
+@keyframes successFadeOut{0%{opacity:1;}100%{opacity:0;}}
 .critter{position:absolute;top:0;pointer-events:none;filter:drop-shadow(0 2px 3px rgba(20,30,10,.25));animation-timing-function:linear;animation-iteration-count:1;animation-fill-mode:forwards;}
 .critter.bird{font-size:22px;}
 .critter.bird img{height:26px;width:auto;display:block;}
@@ -616,20 +620,20 @@ return wrap;},
 success:function(){
 if(state.lastOverCap){
 var pC=PLANTS[state.plant];var emojiC=stageEmoji(state.plant,state.count);var szC=stageSize(state.plant,state.count);
-var wrapC=el('<div class="login-full" style="background-image:url(\''+BG_WATER+'\');"></div>');
+var wrapC=el('<div class="login-full success-fade" style="background-image:url(\''+BG_WATER+'\');"></div>');
 wrapC.innerHTML='<span class="seedbench-nametag">'+rb('今日','きょう')+'もれんしゅうできたね！</span>'+
 '<div class="success-stage" style="font-size:'+szC+'px;">'+emojiC+'</div>'+
 '<div class="success-msg">'+rb('今日','きょう')+'はもう'+DAILY_CAP+rb('回','かい')+'れんしゅうしたよ！このぶんは'+rb('明日','あした')+'にプラスするね</div>'+
 mascotOverlay('また'+rb('明日','あした')+'ね！','bottom right clear-nav narrow','calm')+
 '<button class="btn compact water-float-btn" id="backBtn">お'+rb('庭','にわ')+'にもどる</button>';
-wrapC.querySelector('#backBtn').onclick=function(){go('home');};
+wrapC.querySelector('#backBtn').onclick=function(){wrapC.classList.add('fade-out');setTimeout(function(){go('home');},320);};
 return wrapC;
 }
 var level=state.lastDuration?state.lastDuration.level:0;var animal=state.lastAnimal;
 var p=PLANTS[state.plant];var emoji=stageEmoji(state.plant,state.count);var sz=stageSize(state.plant,state.count);
 var sparkCount=[0,2,3,4,6][level];var sparks='';
 for(var i=0;i<sparkCount;i++){var left=10+Math.random()*80,top=15+Math.random()*55,delay=(Math.random()*0.8).toFixed(2);sparks+='<span class="spark" style="left:'+left+'%;top:'+top+'%;animation-delay:'+delay+'s;">✨</span>';}
-var wrap=el('<div class="login-full" style="background-image:url(\''+BG_WATER+'\');"></div>');
+var wrap=el('<div class="login-full success-fade" style="background-image:url(\''+BG_WATER+'\');"></div>');
 var mascotText=state.lastMilestone?(state.lastMilestone.days+'日もつづいたね！すごいすごい！'):(animal&&animal.e?(animal.name+'が遊びに来てくれたね！'):'今日もえらかったね！');
 var mascotExpr=state.lastMilestone?'laugh':(animal&&animal.e?'surprised':'calm');
 var potionLine='';
@@ -644,7 +648,7 @@ wrap.innerHTML='<span class="seedbench-nametag">'+rb('今日','きょう')+'も'
 '<div class="success-msg">'+msgText+'</div>'+
 mascotOverlay(mascotText,'bottom right clear-nav narrow',mascotExpr)+
 '<button class="btn compact water-float-btn" id="backBtn">お'+rb('庭','にわ')+'にもどる</button>';
-wrap.querySelector('#backBtn').onclick=function(){go('home');};
+wrap.querySelector('#backBtn').onclick=function(){wrap.classList.add('fade-out');setTimeout(function(){go('home');},320);};
 return wrap;},
 
 zukan:function(){
