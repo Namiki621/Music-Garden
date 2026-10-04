@@ -91,7 +91,10 @@ input[type=text]:focus{outline:3px solid var(--sun);border-color:var(--sun);}
 .garden-path{position:absolute;left:44%;top:0;bottom:0;width:9%;background:linear-gradient(180deg,rgba(230,214,175,0) 0%,rgba(230,214,175,.5) 22%,rgba(230,214,175,.5) 78%,rgba(230,214,175,0) 100%);transform:skewX(-7deg);}
 .garden-deco{position:absolute;transform:translate(-50%,-50%);font-size:28px;filter:drop-shadow(0 4px 6px rgba(20,30,10,.3));}
 .garden-plant{position:absolute;transform:translate(-50%,-50%);text-align:center;filter:drop-shadow(0 6px 8px rgba(20,30,10,.3));}
-.garden-plant .n{display:block;font-size:10px;font-weight:700;color:#2E3B2A;background:rgba(255,255,255,.85);border-radius:8px;padding:1px 6px;margin-top:2px;}
+.garden-plant .n{display:block;font-size:10px;font-weight:700;color:#2E3B2A;background:rgba(255,255,255,.85);border-radius:8px;padding:1px 6px;margin-top:2px;white-space:nowrap;}
+.garden-edit-toggle{position:absolute;top:calc(14px + env(safe-area-inset-top,0px));right:16px;z-index:2;background:rgba(255,255,255,.9);color:#357336;border:none;padding:7px 14px;border-radius:20px;font-size:12px;font-weight:700;box-shadow:0 4px 10px -2px rgba(0,0,0,.25);cursor:pointer;}
+.garden-edit-toggle.active{background:#e8584f;color:#fff;}
+.plant-remove-btn{position:absolute;transform:translate(-50%,-50%);width:26px;height:26px;border-radius:50%;background:#e8584f;color:#fff;border:2px solid #fff;font-size:13px;font-weight:800;line-height:22px;text-align:center;padding:0;cursor:pointer;box-shadow:0 2px 4px rgba(0,0,0,.3);z-index:9;}
 
 .toast-msg{background:#E4F3E0;color:#357336;border:2px solid #BFE3B8;border-radius:14px;padding:10px 14px;font-size:14px;font-weight:700;text-align:center;margin-bottom:12px;}
 .confirm-box{background:#FFF6E6;border:2px solid #F2D9A0;border-radius:16px;padding:14px;margin-top:12px;}
@@ -426,7 +429,7 @@ var DURATIONS=[{label:'5分',level:0},{label:'10分',level:1},{label:'15分',lev
 var MILESTONES={3:2,5:3,7:2};
 var DAILY_CAP=(location.search.indexOf('preview=1')!==-1)?999:2;
 
-var state={screen:'login',name:'',plant:null,count:0,gardenPlots:[],streak:0,streakDate:'',awarded:[],potions:[],discovered:[],totalPractice:0,lastDuration:null,lastAnimal:null,lastMilestone:null,dailyCount:0,dailyDate:'',carryGain:0,lastOverCap:false};
+var state={screen:'login',name:'',plant:null,count:0,gardenPlots:[],streak:0,streakDate:'',awarded:[],potions:[],discovered:[],totalPractice:0,lastDuration:null,lastAnimal:null,lastMilestone:null,dailyCount:0,dailyDate:'',carryGain:0,lastOverCap:false,gardenEditMode:false};
 
 function save(){try{if(!state.name)return;localStorage.setItem('musicgarden2:'+state.name,JSON.stringify({plant:state.plant,count:state.count,gardenPlots:state.gardenPlots,streak:state.streak,streakDate:state.streakDate,awarded:state.awarded,potions:state.potions,discovered:state.discovered,totalPractice:state.totalPractice,dailyCount:state.dailyCount,dailyDate:state.dailyDate,carryGain:state.carryGain}));}catch(e){}}
 function load(name){try{var raw=localStorage.getItem('musicgarden2:'+name);if(raw){var d=JSON.parse(raw);state.plant=d.plant;state.count=d.count||0;state.gardenPlots=d.gardenPlots||[];state.streak=d.streak||0;state.streakDate=d.streakDate||'';state.awarded=d.awarded||[];state.potions=d.potions||[];state.discovered=d.discovered||[];state.totalPractice=d.totalPractice||0;state.dailyCount=d.dailyCount||0;state.dailyDate=d.dailyDate||'';state.carryGain=d.carryGain||0;}}catch(e){}}
@@ -442,20 +445,21 @@ function rb(k,r){return '<ruby>'+k+'<rt>'+r+'</rt></ruby>';}
 function escAttr(s){return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;');}
 function splitTypeUnits(html){var units=[];var i=0;while(i<html.length){if(html[i]==='<'){if(html.slice(i,i+6)==='<ruby>'){var end=html.indexOf('</ruby>',i);end=end===-1?html.length:end+7;units.push(html.slice(i,end));i=end;}else{var end2=html.indexOf('>',i);end2=end2===-1?html.length:end2+1;units.push(html.slice(i,end2));i=end2;}}else{units.push(html[i]);i++;}}return units;}
 function finalStageHtml(key){var p=PLANTS[key];var fsz=4.4*(p.sizeMult||1);if(p.stagesImg)return '<img src="'+p.stagesImg[p.stagesImg.length-1]+'" style="height:'+fsz+'em;width:auto;vertical-align:middle;display:inline-block;">';return '<span style="font-size:'+fsz+'em;line-height:1;">'+p.stages[6]+'</span>';}
-function plantDepth(key){var p=PLANTS[key];return (p&&p.depth==='front')?'front':'back';}
+function plantDepth(key){var p=PLANTS[key];if(p&&p.depth==='front')return 'front';if(p&&p.sizeMult>1)return 'backBig';return 'back';}
 function centerOutStep(i){if(i===0)return 0;var step=Math.ceil(i/2);return (i%2===1)?step:-step;}
 function gardenPos(key,idxInCategory){
 var cat=plantDepth(key);
-var perRow=5,spacingL=15;
+var perRow=cat==='backBig'?3:5;
+var spacingL=cat==='backBig'?28:15;
+var baseT=cat==='front'?74:(cat==='backBig'?36:60);
+var rowStepT=cat==='front'?9:(cat==='backBig'?16:8);
 var row=Math.floor(idxInCategory/perRow);
 var posInRow=idxInCategory%perRow;
 var off=centerOutStep(posInRow);
 var l=50+off*spacingL;
 l=Math.max(8,Math.min(92,l));
-var baseT=cat==='front'?74:56;
-var rowStepT=cat==='front'?9:8;
 var t=cat==='front'?baseT+row*rowStepT:baseT-row*rowStepT;
-t=Math.max(24,Math.min(88,t));
+t=Math.max(20,Math.min(88,t));
 return {l:l,t:t};
 }
 function esc(s){return String(s).replace(/[<>&"]/g,function(c){return {'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c];});}
@@ -540,19 +544,24 @@ return wrap;},
 
 garden:function(){
 var plots=state.gardenPlots;
+var editMode=!!state.gardenEditMode;
 var deco='';
-var frontN=0,backN=0;
-var plantsHtml=plots.map(function(g){var idx=(plantDepth(g)==='front')?frontN++:backN++;var pos=gardenPos(g,idx);var p=PLANTS[g];return '<div class="garden-plant" style="left:'+pos.l+'%;top:'+pos.t+'%;">'+finalStageHtml(g)+'<span class="n">'+p.name+'</span></div>';}).join('');
+var frontN=0,backN=0,backBigN=0;
+var placed=plots.map(function(g,i){var d=plantDepth(g);var idx=(d==='front')?frontN++:(d==='backBig')?backBigN++:backN++;var pos=gardenPos(g,idx);return {g:g,i:i,pos:pos};});
+var plantsHtml=placed.map(function(o){var p=PLANTS[o.g];return '<div class="garden-plant" style="left:'+o.pos.l+'%;top:'+o.pos.t+'%;">'+finalStageHtml(o.g)+'<span class="n">'+p.name+'</span></div>';}).join('');
+var removeBtnsHtml=editMode?placed.map(function(o){var p=PLANTS[o.g];var mult=(p&&p.sizeMult)||1;var offL=6*mult,offT=6*mult;return '<button class="plant-remove-btn" data-remove-idx="'+o.i+'" style="left:'+(o.pos.l+offL)+'%;top:'+(o.pos.t-offT)+'%;">\u00d7</button>';}).join(''):'';
 var wrap=el('<div class="screen-col"></div>');
-wrap.innerHTML='<div class="home-photo garden-scene" style="background-image:url(\''+BG_LOGIN+'\');min-height:64vh;"><div class="photo-topbar"><span class="seedbench-nametag">'+esc(state.name)+' さんのお'+rb('庭','にわ')+'</span></div>'+
-(plots.length?deco+plantsHtml:'')+
-mascotOverlay(plots.length?'ここまで'+rb('育','そだ')+'てたよ！':'まだ'+rb('完成','かんせい')+'した'+rb('植物','しょくぶつ')+'がないよ。'+rb('育','そだ')+'ててみよう！','bottom right narrow low',plots.length?'calm':'normal')+
+wrap.innerHTML='<div class="home-photo garden-scene" style="background-image:url(\''+BG_LOGIN+'\');min-height:64vh;"><div class="photo-topbar"><span class="seedbench-nametag">'+esc(state.name)+' さんのお'+rb('庭','にわ')+'</span>'+(plots.length?'<button class="garden-edit-toggle'+(editMode?' active':'')+'" id="gardenEditToggle">'+(editMode?'かんりょう':'せいりする')+'</button>':'')+'</div>'+
+(plots.length?deco+plantsHtml+removeBtnsHtml:'')+
+mascotOverlay(plots.length?(editMode?'けしたい'+rb('植物','しょくぶつ')+'の\u00d7をタップしてね':'ここまで'+rb('育','そだ')+'てたよ！'):'まだ'+rb('完成','かんせい')+'した'+rb('植物','しょくぶつ')+'がないよ。'+rb('育','そだ')+'ててみよう！','bottom right narrow low',plots.length?'calm':'normal')+
 '<div class="home-sheet">'+
 (plots.length?'<p class="msg" style="margin:0;">'+rb('完成','かんせい')+'した'+rb('植物','しょくぶつ')+'：'+plots.length+'本</p>':'<button class="btn compact flower" id="backHomeBtn">お'+rb('庭','にわ')+'にもどる</button>')+
 '</div>'+
 '</div>';
 wrap.appendChild(navBar('garden'));
 var bh=wrap.querySelector('#backHomeBtn');if(bh)bh.onclick=function(){go('home');};
+var et=wrap.querySelector('#gardenEditToggle');if(et)et.onclick=function(){state.gardenEditMode=!state.gardenEditMode;go('garden');};
+wrap.querySelectorAll('.plant-remove-btn').forEach(function(btn){btn.onclick=function(e){e.stopPropagation();var idx=parseInt(btn.getAttribute('data-remove-idx'),10);var p=PLANTS[state.gardenPlots[idx]];if(confirm((p?p.name:'この植物')+'をおにわから消しますか？')){state.gardenPlots.splice(idx,1);save();go('garden');}};});
 return wrap;},
 
 duration:function(){
