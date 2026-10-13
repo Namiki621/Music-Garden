@@ -427,7 +427,7 @@ var ANIMALS=[
 {k:null,e:null,name:null,tier:null,w:22}];
 var DURATIONS=[{label:'5分',level:0},{label:'10分',level:1},{label:'15分',level:2},{label:'30分',level:3},{label:'45分以上',level:4}];
 var MILESTONES={3:2,5:3,7:2};
-var DAILY_CAP=(location.search.indexOf('preview=1')!==-1)?999:2;
+var DAILY_CAP=(location.search.indexOf('preview=1')!==-1)?999:((location.search.indexOf('room=1')!==-1)?7:2);
 
 var state={screen:'login',name:'',plant:null,count:0,gardenPlots:[],streak:0,streakDate:'',awarded:[],potions:[],discovered:[],totalPractice:0,lastDuration:null,lastAnimal:null,lastMilestone:null,dailyCount:0,dailyDate:'',carryGain:0,lastOverCap:false,gardenEditMode:false};
 
