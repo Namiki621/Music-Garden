@@ -668,7 +668,7 @@ groups.forEach(function(g){
 var items=ANIMALS.filter(function(a){return a.tier===g[0];});
 html+='<div class="zukan-group"><h3>'+g[1]+'</h3><div class="zukan-grid">'+items.map(function(a){
 var found=state.discovered.indexOf(a.k)!==-1;
-return '<div class="zukan-item '+(found?'':'locked')+'"><div class="e">'+(found?animalGlyph(a,68,a.tier==='super'):'❔')+'</div><span class="n">'+(found?a.name:'？？？')+'</span></div>';
+return '<div class="zukan-item '+(found?'':'locked')+'"><div class="e">'+(found?animalGlyph(a,68,false):(a.tier==='super'?animalGlyph(a,68,true):'❔'))+'</div><span class="n">'+(found?a.name:'？？？')+'</span></div>';
 }).join('')+'</div></div>';
 });
 html+='</div>';
