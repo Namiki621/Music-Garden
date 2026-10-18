@@ -79,7 +79,7 @@ input[type=text]:focus{outline:3px solid var(--sun);border-color:var(--sun);}
 .home-scene .plots .plot{background:rgba(255,255,255,.75);}
 .home-photo{position:relative;min-height:52vh;flex:1 1 auto;background-size:cover;background-position:center;overflow:hidden;}
 .screen-col{display:flex;flex-direction:column;flex:1;min-height:0;}
-.home-photo .stage{position:fixed;left:50%;bottom:calc(max(26%,150px) - 3.5px);z-index:1;transform:translateX(-50%);line-height:1;filter:drop-shadow(0 8px 12px rgba(20,30,10,.35));transition:font-size .3s;}
+.home-photo .stage{position:absolute;left:50%;bottom:calc(max((var(--app-vh,1vh) * 100 - env(safe-area-inset-top,0px)) * .26,150px) - 72px - env(safe-area-inset-bottom,0px) - 2.5px);z-index:1;transform:translateX(-50%);line-height:1;filter:drop-shadow(0 8px 12px rgba(20,30,10,.35));transition:font-size .3s;}
 .home-photo .plots{position:absolute;left:0;right:0;top:10px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;padding:0 12px;}
 .home-photo .plots .plot{background:rgba(255,255,255,.8);}
 .home-sheet{position:fixed;left:50%;transform:translateX(-50%);width:100%;max-width:480px;bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:7;padding:14px 20px 12px;background:linear-gradient(180deg,rgba(18,28,18,0) 0%,rgba(16,26,16,.18) 40%,rgba(12,20,12,.55) 100%);}
