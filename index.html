@@ -438,6 +438,7 @@ function todayStr(){var t=new Date();return t.getFullYear()+'-'+(t.getMonth()+1)
 function checkDailyReset(){var t=todayStr();if(state.dailyDate!==t){state.dailyDate=t;state.dailyCount=0;}}
 function animalImg(a){if(!a)return null;if(a.hwImg&&isSeasonalActive('halloween'))return a.hwImg;return a.img;}
 function animalGlyph(a,px,sil){var img=animalImg(a);if(img)return '<img src="'+img+'" style="height:'+px+'px;width:auto;vertical-align:middle;display:inline-block;'+(sil?'filter:brightness(0) opacity(.5);':'')+'">';return a?a.e:'';}
+function animalShown(a){return !a.seasonal||isSeasonalActive(a.seasonal)||state.discovered.indexOf(a.k)!==-1;}
 function pickAnimal(){var pool=ANIMALS.filter(function(a){return !a.seasonal||isSeasonalActive(a.seasonal);});var total=pool.reduce(function(s,a){return s+a.w;},0);var r=Math.random()*total,acc=0;for(var i=0;i<pool.length;i++){acc+=pool[i].w;if(r<=acc)return pool[i];}return pool[pool.length-1];}
 function stageIndex(key,count){var p=PLANTS[key];var arr=p.stagesImg||p.stages;var n=arr.length;return Math.min(n-1,Math.floor(count*n/p.target));}
 function stageEmoji(key,count){var p=PLANTS[key];var idx=stageIndex(key,count);if(p.stagesImg)return '<img src="'+p.stagesImg[idx]+'" style="height:2em;width:auto;vertical-align:middle;display:inline-block;">';return p.stages[idx];}
@@ -667,7 +668,7 @@ var html='<div class="body-pad"><h2 class="headline" style="font-size:20px;">お
 mascot('れんしゅうすると、ときどきおともだちが'+rb('遊','あそ')+'びに'+rb('来','き')+'てくれるよ。レアな'+rb('子','こ')+'に'+rb('会','あ')+'えるかも…！？');
 html+=hwOffNote();
 groups.forEach(function(g){
-var items=ANIMALS.filter(function(a){return a.tier===g[0];});
+var items=ANIMALS.filter(function(a){return a.tier===g[0]&&animalShown(a);});
 html+='<div class="zukan-group"><h3>'+g[1]+'</h3><div class="zukan-grid">'+items.map(function(a){
 var found=state.discovered.indexOf(a.k)!==-1;
 return '<div class="zukan-item '+(found?'':'locked')+'"><div class="e">'+(found?animalGlyph(a,68,false):(a.tier==='super'?animalGlyph(a,68,true):'❔'))+'</div><span class="n">'+(found?a.name:'？？？')+'</span></div>';
@@ -684,7 +685,7 @@ mascot(rb('毎日','まいにち')+'つづけると『れんしゅうきろく�
 '<div class="stat-row"><span>れんしゅうした'+rb('回数','かいすう')+'（'+rb('累計','るいけい')+'）</span><b>'+state.totalPractice+rb('回','かい')+'</b></div>'+
 '<div class="stat-row"><span>いまの'+rb('連続','れんぞく')+rb('記録','きろく')+'</span><b>'+state.streak+'日</b></div>'+
 '<div class="stat-row"><span>そだてた'+rb('植物','しょくぶつ')+'の'+rb('数','かず')+'</span><b>'+state.gardenPlots.length+'本</b></div>'+
-'<div class="stat-row"><span>'+rb('見','み')+'つけたおともだち</span><b>'+state.discovered.length+' / '+ANIMALS.filter(function(a){return a.k;}).length+'</b></div>'+
+'<div class="stat-row"><span>'+rb('見','み')+'つけたおともだち</span><b>'+state.discovered.length+' / '+ANIMALS.filter(function(a){return a.k&&animalShown(a);}).length+'</b></div>'+
 (state.potions.length?'<div class="potion-badge static"><span class="potion-icon">🧪</span><span class="potion-text">ポーション×'+state.potions.length+' '+rb('持','も')+'ち'+rb('中','ちゅう')+'（かばんで'+rb('確認','かくにん')+'できるよ）</span></div>':'<p class="msg" style="margin-top:14px;">3日・5日・7日つづけるとポーションがもらえるよ</p>')+
 '</div>';
 var wrap=pagePhoto(BG_LOGIN,html);
