@@ -438,7 +438,7 @@ function todayStr(){var t=new Date();return t.getFullYear()+'-'+(t.getMonth()+1)
 function checkDailyReset(){var t=todayStr();if(state.dailyDate!==t){state.dailyDate=t;state.dailyCount=0;}}
 function animalImg(a){if(!a)return null;if(a.hwImg&&isSeasonalActive('halloween'))return a.hwImg;return a.img;}
 function animalGlyph(a,px,sil){var img=animalImg(a);if(img)return '<img src="'+img+'" style="height:'+px+'px;width:auto;vertical-align:middle;display:inline-block;'+(sil?'filter:brightness(0) opacity(.5);':'')+'">';return a?a.e:'';}
-function animalShown(a){return !a.seasonal||isSeasonalActive(a.seasonal)||state.discovered.indexOf(a.k)!==-1;}
+function animalShown(a){return !a.seasonal||isSeasonalActive(a.seasonal);}
 function pickAnimal(){var pool=ANIMALS.filter(function(a){return !a.seasonal||isSeasonalActive(a.seasonal);});var total=pool.reduce(function(s,a){return s+a.w;},0);var r=Math.random()*total,acc=0;for(var i=0;i<pool.length;i++){acc+=pool[i].w;if(r<=acc)return pool[i];}return pool[pool.length-1];}
 function stageIndex(key,count){var p=PLANTS[key];var arr=p.stagesImg||p.stages;var n=arr.length;return Math.min(n-1,Math.floor(count*n/p.target));}
 function stageEmoji(key,count){var p=PLANTS[key];var idx=stageIndex(key,count);if(p.stagesImg)return '<img src="'+p.stagesImg[idx]+'" style="height:2em;width:auto;vertical-align:middle;display:inline-block;">';return p.stages[idx];}
